@@ -1,0 +1,50 @@
+# -*- coding: utf-8 -*-
+import pyotp
+import time
+import pyperclip
+
+def main():
+    # 建议使用更安全的密钥（至少16字节的Base32编码字符串）
+    SECRET_AAA = ''
+    SECRET_BBB = ''
+    
+    # 创建TOTP对象
+    totp_aaa = pyotp.TOTP(SECRET_AAA)
+    totp_bbb = pyotp.TOTP(SECRET_BBB)
+    
+    # 获取当前时间
+    current_time = time.time()
+    
+    # 获取用户输入
+    print("请选择客户端类型:")
+    print("1. 运营端")
+    print("2. 租户端")
+    user_input = input("请输入选择（默认为1）: ").strip() or '1'
+    
+    # 设置TOTP和客户端类型
+    if user_input == '1':
+        totp = totp_aaa
+        client_type = "运营端"
+    elif user_input == '2':
+        totp = totp_bbb
+        client_type = "租户端"
+    else:
+        print("无效输入")
+        return
+    
+    # 生成并显示验证码
+    otp = totp.now()
+    remaining_time = totp.interval - (current_time % totp.interval)
+    
+    print(f"\n{client_type} 一次性密码: {otp}")
+    print(f"剩余有效时间: {remaining_time}秒")
+    
+    # 将密码复制到剪贴板
+    try:
+        pyperclip.copy(otp)
+        print("密码已复制到剪贴板")
+    except Exception as e:
+        print(f"无法复制到剪贴板: {e}")
+
+if __name__ == "__main__":
+    main()
